@@ -1,0 +1,77 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Environment variables and secrets
+.env
+*.env
+.env.example
+
+# Development and virtual environments
+venv/
+env/
+.venv/
+.python-version
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
+*.pid
+
+# Testing
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+.cache
+.pytest_cache/
+
+# IDEs and editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# MyPy
+.mypy_cache/
+.dmypy.json
+.dmypy.json.5
+
+# Bandit security scanner
+.bandit
+
+# FastAPI/Starlette temporary files
+instance/
+*.sqlite3
+
+# Docker
+*.log
+docker-compose.override.yml
+
+# Coverage reports
+coverage/
+.coverage
+.cache
+
+# Temporary files
+*.bak
+*.tmp
+*.temp
+*~
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Additional customization for your project can go here
