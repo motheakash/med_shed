@@ -17,6 +17,7 @@ class DoctorService(BaseService):
         super().__init__(async_db["Doctors"])
 
     async def create_doctor(self, doctor_data: DoctorCreateModel | dict) -> dict:
+        doctor_data['is_active'] = False   # without email varification it should be false
         doctor_data['password'] = hash_password(doctor_data['password'])
         if not isinstance(doctor_data, DoctorCreateModel):
             doctor_data = DoctorCreateModel(**doctor_data)
@@ -34,13 +35,27 @@ class DoctorService(BaseService):
             return DoctorBaseModel(**doctor)  
         return None
     
-    async def get_all_doctors(self, page: int = 1, limit: int = 10) -> Tuple[List[DoctorResponseModel], int]:    
+    async def get_all_doctors(self, page: int = 1, limit: int = 10) -> Tuple[List[DoctorResponseModel], int]:
         skip = (page - 1) * limit
-    
-        doctors_cursor = self.collection.find().skip(skip).limit(limit)
-        doctors = await doctors_cursor.to_list(length=limit)
         
-        total_count = await self.collection.count_documents({})
+        pipeline = [
+            {
+                "$facet": {
+                    "doctors": [
+                        {"$skip": skip},
+                        {"$limit": limit}
+                    ],
+                    "total_count": [
+                        {"$count": "count"}
+                    ]
+                }
+            }
+        ]
+        
+        result  = await self.aggregate(pipeline)
+        
+        doctors = result[0].get("doctors", [])
+        total_count = result[0].get("total_count", [{"count": 0}])[0].get("count", 0)
         
         return doctors, total_count
 

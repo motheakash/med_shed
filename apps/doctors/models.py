@@ -17,6 +17,7 @@ class DoctorBaseModel(BaseModel):
     name: str = Field(..., min_length=1, max_length=50, example="Dr. Akash")
     email: EmailStr = Field(..., example="akash@example.com")
     phone: Optional[str] = Field(..., min_length=10, max_length=50, example="9988776655")
+    is_active: Optional[bool] = Field(True, description="Indicates if the doctor is active")
     address: Optional[AddressModel] = Field(
         ...,
         example={
@@ -47,8 +48,6 @@ class DoctorCreateModel(DoctorBaseModel):
 class DoctorResponseModel(DoctorBaseModel):
     id: PyObjectId = Field(..., alias="_id", description="Unique identifier")
 
-# class DoctorPaginatedResponseModel(PaginatedResponseModel):
-#     doctors: List[DoctorResponseModel] = Field(..., description="List of doctors on the current page")
 
 class PaginatedResponseModel(BaseModel):
     data: List[DoctorResponseModel] = Field(..., description="List of doctors on the current page")

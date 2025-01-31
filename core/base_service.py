@@ -21,6 +21,12 @@ class BaseService:
         result = await self.collection.insert_one(data)
         return {**data, "_id": result.inserted_id}
 
+    async def aggregate(self, pipeline: list) -> list:
+        deleted_filter = {"$match": {"deleted_at": None}}
+        pipeline.insert(0, deleted_filter)
+        cursor = self.collection.aggregate(pipeline)
+        return await cursor.to_list(length=None)
+
     async def find_one(self, object_id: str) -> Optional[dict]:
         """Fetch a document by its ObjectId."""
         obj = await self.collection.find_one({"_id": ObjectId(object_id)})
