@@ -1,4 +1,10 @@
 from typing import List, Dict
+from .config import SIMPLE_JWT
+from datetime import datetime, timedelta, timezone
+from apps.doctors.models import DoctorResponseModel
+import jwt
+import bcrypt
+
 
 class PaginatedResponse:
     def __init__(self, items: Dict, total_count: int, page: int, limit: int):
@@ -24,3 +30,20 @@ class PaginatedResponse:
                 "has_previous": has_previous
             }
         }
+
+
+def generate_access_token(member:DoctorResponseModel) -> str:
+    payload = {
+        'username': member['username'],
+        'email': member['email'],
+        'exp': datetime.now(timezone.utc) + timedelta(minutes=SIMPLE_JWT['ACCESS_TOKEN_LIFETIME']),  # Use timedelta for expiration
+        'iat': datetime.now(timezone.utc),
+    }
+    encoded_jwt = jwt.encode(payload, SIMPLE_JWT['SECRETE_KEY'], algorithm=SIMPLE_JWT['JWT_ALGORITHM'])
+    return encoded_jwt
+
+def is_valid_password(provided_password:str, stored_hashed_password:str) -> bool:
+    """
+    Checks if the provided password matches the stored hashed password.
+    """
+    return bcrypt.checkpw(provided_password.encode('utf-8'), stored_hashed_password.encode('utf-8'))

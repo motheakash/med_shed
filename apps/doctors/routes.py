@@ -11,7 +11,7 @@ router = APIRouter()
 # doctor_service = DoctorService()
 
 
-@router.post("/signup", response_model=DoctorResponseModel)
+@router.post("/", response_model=DoctorResponseModel)
 async def signup_doctor(doctor: DoctorCreateModel, service_class=DoctorService):
 
     existing_doctor_by_username = await service_class().collection.find_one({"username": doctor.username})
@@ -29,7 +29,7 @@ async def signup_doctor(doctor: DoctorCreateModel, service_class=DoctorService):
     return DoctorResponseModel(**created_doctor)
 
 
-@router.get("/get-doctors", response_model=PaginatedResponseModel)
+@router.get("/", response_model=PaginatedResponseModel)
 async def get_doctor_api(
     service_class: DoctorService = Depends(DoctorService),
     page: int = Query(1, ge=1, description="Page number, starting from 1"),
