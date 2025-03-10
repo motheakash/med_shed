@@ -1,25 +1,23 @@
 from datetime import datetime
 from typing import Optional, List, Tuple
-from passlib.context import CryptContext
+from fastapi import HTTPException
 from .models import DoctorCreateModel, DoctorBaseModel, DoctorResponseModel
 from .repository import DoctorRepository
+from core.utils import hash_password
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-def hash_password(password: str) -> str:
-    """Hash the given password."""
-    return pwd_context.hash(password)
 
 class DoctorService:
     def __init__(self):
         self.repository = DoctorRepository()
 
     async def create_doctor(self, doctor_data: DoctorCreateModel | dict) -> dict:
-        doctor_data['is_active'] = False
-        doctor_data['password'] = hash_password(doctor_data['password'])
+        doctor_data.is_active = False
+        doctor_data.password = hash_password(doctor_data.password)
 
-        if not isinstance(doctor_data, DoctorCreateModel):
-            doctor_data = DoctorCreateModel(**doctor_data)
+        record = await self.repository.find_by_username_or_email(username=doctor_data.username, email=doctor_data.email)
+        if record:
+            raise HTTPException(status_code=409, detail='user already exists with username or email')
 
         doctor_dict = doctor_data.dict(by_alias=True, exclude_unset=True)
         return await self.repository.insert_doctor(doctor_dict)

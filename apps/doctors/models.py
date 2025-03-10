@@ -1,5 +1,4 @@
 from core.models import PyObjectId, PaginationInfoModel
-# from bson import ObjectId
 from pydantic import BaseModel, Field, EmailStr
 from typing import Optional, Dict, List
 
@@ -16,6 +15,7 @@ class DoctorBaseModel(BaseModel):
     username: str = Field(..., min_length=1, max_length=50, example="username")
     name: str = Field(..., min_length=1, max_length=50, example="Dr. Akash")
     email: EmailStr = Field(..., example="akash@example.com")
+    role: str = Field(..., min_length=1, max_length=20, example="admin")
     phone: Optional[str] = Field(..., min_length=10, max_length=50, example="9988776655")
     is_active: Optional[bool] = Field(True, description="Indicates if the doctor is active")
     address: Optional[AddressModel] = Field(

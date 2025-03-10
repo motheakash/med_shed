@@ -12,6 +12,14 @@ class DoctorRepository:
 
     async def find_by_email(self, email: str) -> Optional[dict]:
         return await self.collection.find_one({"email": email})
+    
+    async def find_by_username_or_email(self, username: str, email: str) -> Optional[dict]:
+        return await self.collection.find_one({
+            "$or": [
+                {"username": username},
+                {"email": email}
+            ]
+        })
 
     async def insert_doctor(self, doctor_data: dict) -> dict:
         result = await self.collection.insert_one(doctor_data)

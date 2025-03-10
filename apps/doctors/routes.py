@@ -5,39 +5,30 @@ from typing import Dict, List
 from .models import DoctorBaseModel, DoctorCreateModel, DoctorResponseModel, PaginatedResponseModel
 from .services import DoctorService
 from core.utils import PaginatedResponse
+from apps.auth.permissions import is_authenticated, role_required
 
 
 router = APIRouter()
 # doctor_service = DoctorService()
 
 
-@router.post("/", response_model=DoctorResponseModel)
-async def signup_doctor(doctor: DoctorCreateModel, service_class=DoctorService):
+@router.post("/", response_model=DoctorResponseModel, dependencies=[Depends(role_required(["doctor", "admin"]))])
+async def signup_doctor(doctor: DoctorCreateModel, user: dict = Depends(is_authenticated)):
+    service_class = DoctorService()
 
-    existing_doctor_by_username = await service_class().collection.find_one({"username": doctor.username})
-
-    if existing_doctor_by_username:
-        raise HTTPException(status_code=400, detail="Username already exists")
-
-    existing_doctor_by_email = await service_class().collection.find_one({"email": doctor.email})
-
-    if existing_doctor_by_email:
-        raise HTTPException(status_code=400, detail="Email already exists")
-
-    created_doctor = await service_class().create_doctor(doctor.dict(by_alias=True))
+    created_doctor = await service_class.create_doctor(doctor)
 
     return DoctorResponseModel(**created_doctor)
 
 
-@router.get("/", response_model=PaginatedResponseModel)
+@router.get("/", response_model=PaginatedResponseModel, dependencies=[Depends(role_required(["doctor", "admin"]))])
 async def get_doctor_api(
     service_class: DoctorService = Depends(DoctorService),
     page: int = Query(1, ge=1, description="Page number, starting from 1"),
-    limit: int = Query(10, le=100, description="Number of records per page")
+    limit: int = Query(10, le=100, description="Number of records per page"),
+    user: dict = Depends(is_authenticated)
 ):
-    # Fetch doctors and total count with pagination
     doctors, total_count = await service_class.get_all_doctors(page=page, limit=limit)
     
-    # Use the PaginatedResponse class to return paginated response
     response = PaginatedResponse(doctors, total_count, page, limit)
     return response.get_paginated_response()

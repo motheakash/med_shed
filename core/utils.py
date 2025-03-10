@@ -2,8 +2,11 @@ from typing import List, Dict
 from .config import SIMPLE_JWT
 from datetime import datetime, timedelta, timezone
 from apps.doctors.models import DoctorResponseModel
+from passlib.context import CryptContext
 import jwt
 import bcrypt
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 class PaginatedResponse:
@@ -32,15 +35,21 @@ class PaginatedResponse:
         }
 
 
+def hash_password(password: str) -> str:
+    """Hash the given password."""
+    return pwd_context.hash(password)
+
 def generate_access_token(member:DoctorResponseModel) -> str:
     payload = {
         'username': member['username'],
         'email': member['email'],
+        'role': member['role'],
         'exp': datetime.now(timezone.utc) + timedelta(minutes=SIMPLE_JWT['ACCESS_TOKEN_LIFETIME']),  # Use timedelta for expiration
         'iat': datetime.now(timezone.utc),
     }
     encoded_jwt = jwt.encode(payload, SIMPLE_JWT['SECRETE_KEY'], algorithm=SIMPLE_JWT['JWT_ALGORITHM'])
     return encoded_jwt
+
 
 def is_valid_password(provided_password:str, stored_hashed_password:str) -> bool:
     """
