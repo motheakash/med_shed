@@ -1,6 +1,13 @@
 from pydantic_settings import BaseSettings
 
 
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': 60,  # in minutes
+    'REFRESH_TOKEN_LIFETIME': 1,  # in days
+    'JWT_ALGORITHM': 'HS256',
+    'SECRETE_KEY': 'tokensecretkey',
+}
+
 class Settings(BaseSettings):
     # Application Settings
     APP_NAME: str
